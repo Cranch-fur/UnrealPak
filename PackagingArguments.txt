@@ -1,0 +1,1 @@
+-compress -asynccompression -compressionformat=Oodle -compressmethod=Leviathan -compresslevel=6 -compressionblocksize=256KB -multiprocess
