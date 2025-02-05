@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,7 +34,7 @@ namespace UnrealPak
         private static string[] commandLineArguments;
 
 
-        private const string enginePathFile = "UnrealEngineDirectory.txt";
+        private const string engineDirectoryFile = "EngineDirectory.txt";
         private const string welcomeMessageFile = "WelcomeMessage.txt";
         private const string packagingArgumentsFile = "PackagingArguments.txt";
 
@@ -78,7 +77,7 @@ namespace UnrealPak
             string enginePath;
             do
             {
-                Console.WriteLine("\n[UnrealEnginePath.txt] Specify your Unreal Engine installation directory:");
+                Console.WriteLine("\n[Engine Directory] Specify your Unreal Engine installation directory:");
                 enginePath = Console.ReadLine();
             } while (!Directory.Exists(enginePath));
 
@@ -87,18 +86,18 @@ namespace UnrealPak
         }
         private static string GetEnginePath()
         {
-            if (!File.Exists(enginePathFile))
+            if (!File.Exists(engineDirectoryFile))
             {
                 string enginePath = RequestEnginePath();
 
-                File.WriteAllText(enginePathFile, enginePath);
-                Console.WriteLine($"[{enginePathFile}] Path has been stored.");
+                File.WriteAllText(engineDirectoryFile, enginePath);
+                Console.WriteLine($"[{engineDirectoryFile}] Path has been stored.");
 
                 return enginePath;
             }
 
 
-            return File.ReadAllText(enginePathFile).Trim();
+            return File.ReadAllText(engineDirectoryFile).Trim();
         }
 
 
@@ -174,7 +173,7 @@ namespace UnrealPak
         private static void CreateFileList(string modDirectory)
         {
             string filesList = $"\"{modDirectory}\\*.*\" \"..\\..\\..\\*.*\"";
-            File.WriteAllText("filesList.txt", filesList);
+            File.WriteAllText(filesListPath, filesList);
         }
 
 
@@ -201,7 +200,7 @@ namespace UnrealPak
 
         private static void CleanupTempFiles()
         {
-            File.Delete("filesList.txt");
+            File.Delete(filesListPath);
         }
 
 
