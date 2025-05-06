@@ -35,7 +35,7 @@ namespace UnrealPak
 
 
         private const string engineDirectoryFile = "EngineDirectory.txt";
-        private const string welcomeMessageFile = "WelcomeMessage.txt";
+        private const string startupMessageFile = "StartupMessage.txt";
         private const string packagingArgumentsFile = "PackagingArguments.txt";
 
 
@@ -63,9 +63,9 @@ namespace UnrealPak
 
         private static void PrintWelcomeMessage()
         {
-            if (!File.Exists(welcomeMessageFile)) return;
+            if (!File.Exists(startupMessageFile)) return;
 
-            var lines = File.ReadAllLines(welcomeMessageFile);
+            var lines = File.ReadAllLines(startupMessageFile);
             Console.WriteLine(string.Join("\n", lines) + "\n");
         }
 
