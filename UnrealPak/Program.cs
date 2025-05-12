@@ -10,18 +10,20 @@ namespace UnrealPak
         public string UnrealPakPath { get; }
         public string ModDirectoryPath { get; }
         public int ModIndex { get; }
+        public string OutputDirectory { get; }
         public string StartupArguments { get; }
         public string PakFilePath { get; }
 
-        public PakSettings(string unrealPakPath, string modDirectory, int modIndex, string startupArgs)
+        public PakSettings(string unrealPakPath, string modDirectory, int modIndex, string outputDirectory, string startupArgs)
         {
             UnrealPakPath = unrealPakPath;
             ModDirectoryPath = modDirectory;
             ModIndex = modIndex;
+            OutputDirectory = outputDirectory;
             StartupArguments = startupArgs;
 
             string modName = new DirectoryInfo(modDirectory).Name;
-            PakFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Packaged", $"pakchunk{modIndex}({modName})-WindowsNoEditor.pak");
+            PakFilePath = Path.Combine(outputDirectory, $"pakchunk{modIndex}({modName})-WindowsNoEditor.pak");
         }
     }
 
@@ -37,6 +39,7 @@ namespace UnrealPak
         private const string engineDirectoryFile = "EngineDirectory.txt";
         private const string startupMessageFile = "StartupMessage.txt";
         private const string packagingArgumentsFile = "PackagingArguments.txt";
+        private const string outputDirectoryFile = "OutputDirectory.txt";
 
 
         private static readonly string filesListPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "filesList.txt");
@@ -61,7 +64,7 @@ namespace UnrealPak
 
 
 
-        private static void PrintWelcomeMessage()
+        private static void PrintStartupMessage()
         {
             if (!File.Exists(startupMessageFile)) return;
 
@@ -179,6 +182,46 @@ namespace UnrealPak
 
 
 
+        private static string RequestOutputDirectory()
+        {
+            string outputDirectoryPath;
+            do
+            {
+                Console.WriteLine("\n[Output Directory] Specify destination folder for your mods:");
+                outputDirectoryPath = Console.ReadLine();
+
+                try
+                {
+                    if (!Directory.Exists(outputDirectoryPath))
+                    {
+                        Directory.CreateDirectory(outputDirectoryPath);
+                    }
+                }
+                catch { }
+            } while (!Directory.Exists(outputDirectoryPath));
+
+
+            return outputDirectoryPath;
+        }
+        private static string GetOutputDirectory()
+        {
+            if (!File.Exists(outputDirectoryFile))
+            {
+                string outputDirectoryPath = RequestOutputDirectory();
+
+                File.WriteAllText(outputDirectoryFile, outputDirectoryPath);
+                Console.WriteLine($"[{outputDirectoryFile}] Path has been stored.");
+
+                return outputDirectoryPath;
+            }
+
+
+            return File.ReadAllText(outputDirectoryFile).Trim();
+        }
+
+
+
+
         private static void UnrealPak(PakSettings settings)
         {
             if (!File.Exists(settings.UnrealPakPath))
@@ -206,13 +249,14 @@ namespace UnrealPak
 
 
 
-        private static void PackageMod(string enginePath, string modDirectory, int modIndex)
+        private static void PackageMod(string enginePath, string modDirectory, string outputDirectory, int modIndex)
         {
             PakSettings pakSettings = new PakSettings(
-                GetUnrealPakPath(enginePath),
-                modDirectory,
-                modIndex,
-                GetPackagingArguments()
+                unrealPakPath:   GetUnrealPakPath(enginePath),
+                modDirectory:    modDirectory,
+                modIndex:        modIndex,
+                outputDirectory: outputDirectory,
+                startupArgs:     GetPackagingArguments()
             );
 
 
@@ -233,15 +277,14 @@ namespace UnrealPak
 
             try
             {
-                PrintWelcomeMessage();
-
+                PrintStartupMessage();
 
                 string enginePath = GetEnginePath();
                 string modDirectory = GetModDirectory();
-
+                string outputDirectory = GetOutputDirectory();
 
                 int modIndex = GetModIndex();
-                PackageMod(enginePath, modDirectory, modIndex);
+                PackageMod(enginePath, modDirectory, outputDirectory, modIndex);
             }
             catch (Exception ex)
             {
